@@ -1,0 +1,231 @@
+/* ---------- Page ---------- */
+.tracker-page {
+  margin-left: 240px;
+  padding: 24px;
+  background: #f3f4f6;
+  min-height: 93vh;
+  font-family: "Segoe UI", sans-serif;
+  color: #1f2937;
+  width: 81.2vw;
+}
+
+.tracker-page h1 {
+  margin-bottom: 20px;
+  font-size: 30px;
+  font-weight: 700;
+}
+.date-row select {
+  padding: 10px 10px;
+  border-radius: 6px;
+  margin: 5px;
+  border: 1px solid #cbd5f5;
+  background-color: aliceblue;
+  color: black;
+}
+/* ---------- Attendance Period ---------- */
+.period-box {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 12px;
+}
+
+.period-box label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #374151;
+}
+
+.period-box input {
+  margin-top: 4px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5f5;
+  background-color: aliceblue;
+  color: black;
+}
+
+.period-box button {
+  padding: 9px 16px;
+  border-radius: 6px;
+  border: none;
+  /* background: #14532d; */
+  background-color: darkslategrey;
+  color: white;
+  cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4) sepia(1) saturate(5) hue-rotate(180deg);
+}
+
+/* ---------- Filters ---------- */
+.filters {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.filters select {
+  padding: 10px 10px;
+  border-radius: 6px;
+  margin: 4px;
+  border: 1px solid #cbd5f5;
+  background-color: aliceblue;
+  color: black;
+}
+
+.filters button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: #374151;
+  border: 1px solid #374151;
+  margin: 4px;
+}
+
+.filters button:last-child {
+  background: transparent;
+  color: #374151;
+  border: 1px solid #374151;
+}
+
+/* ---------- Layout ---------- */
+.tracker-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 20px;
+}
+
+/* ---------- Student List ---------- */
+.student-list {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  max-height: 380px;
+  overflow-y: auto;
+  width: 79.5vw;
+  margin-bottom: 20px;
+}
+
+.student-list div {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+
+.student-list div:hover {
+  background: #f9fafb;
+}
+
+.student-list strong {
+  display: block;
+  font-size: 14px;
+}
+
+.student-list span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Student list item */
+.student-item {
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+/* Hover effect */
+.student-item:hover {
+  background: #f6f8fb;
+}
+
+/* Selected student */
+.student-item.active {
+  background: #eef6ff; /* very light blue */
+  border-left: 4px solid #3b82f6; /* accent line */
+  border-color: #cfe2ff;
+}
+
+/* ---------- Summary ---------- */
+.summary {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.summary h3 {
+  margin-bottom: 16px;
+}
+
+.summary p {
+  font-size: 15px;
+  margin: 8px 0;
+}
+
+/* ---------- Numbers ---------- */
+.summary p:nth-child(2) strong,
+.summary p:nth-child(3) strong,
+.summary p:nth-child(4) strong {
+  font-weight: 600;
+}
+
+/* ---------- Scrollbar ---------- */
+.student-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.student-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+.student-item {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.student-item:hover {
+  background: #f9fafb;
+}
+
+.student-item.active {
+  background: #eef6ff;
+  border-color: #c7ddff;
+}
+
+.student-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inline-summary {
+  display: flex;
+  gap: 24px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #374151;
+}

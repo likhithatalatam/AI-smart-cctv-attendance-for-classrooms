@@ -1,0 +1,103 @@
+/* =========================
+   WELCOME PAGE (NO CARD)
+========================= */
+
+.welcome-page {
+  min-height: 100vh;
+  width: 100vw;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url("/ID.jpeg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Content */
+.welcome-content {
+  text-align: center;
+  color: #ffffff;
+  padding: 0 20px;
+}
+
+/* Main heading */
+.welcome-content h1 {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+/* Sub heading */
+.welcome-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #e5e7eb;
+}
+
+/* Tagline */
+.welcome-content p {
+  font-size: 16px;
+  margin-bottom: 36px;
+  color: #cbd5f5;
+}
+
+/* Buttons */
+.welcome-actions {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.welcome-actions button {
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+/* Login */
+.welcome-actions .primary {
+  background-color: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.welcome-actions .primary:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Signup */
+.welcome-actions .secondary {
+  background-color: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.welcome-actions .secondary:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 480px) {
+  .welcome-content h1 {
+    font-size: 26px;
+  }
+
+  .welcome-content h2 {
+    font-size: 18px;
+  }
+
+  .welcome-content p {
+    font-size: 14px;
+  }
+}

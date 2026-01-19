@@ -1,0 +1,197 @@
+.page {
+  padding: 24px 30px;
+  width: 79vw;
+}
+.main {
+  /* padding: 20px; */
+  margin-left: 254px;
+  height: 100vh;
+  width: 100vw;
+  color: white;
+  background-image: url(../images/ideal\ logo5.jpg);
+  background-size: cover;
+  /* opacity: 0.5; */
+  position: fixed;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* ======================================
+   PAGE-SPECIFIC STYLES (ALL PAGES)
+====================================== */
+
+/* ---------- Page Header ---------- */
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #0f172a;
+}
+
+/* ---------- Section ---------- */
+.section {
+  margin-bottom: 24px;
+}
+
+/* ---------- Cards (Page Content) ---------- */
+.page-card {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+/* ---------- Form Layout ---------- */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+/* ---------- Form Button ---------- */
+.form-actions {
+  margin-top: 16px;
+}
+
+/* ---------- Tables ---------- */
+.table-wrapper {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #f1f5f9;
+}
+
+th {
+  padding: 10px;
+  font-size: 13px;
+  text-align: left;
+  color: #334155;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+td {
+  padding: 10px;
+  font-size: 14px;
+}
+
+tbody tr:hover {
+  background-color: #c1c6cc;
+  color: #334155;
+}
+
+/* ---------- Status Text ---------- */
+.status-success {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.status-warning {
+  color: #d97706;
+  font-weight: 500;
+}
+
+.status-danger {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* ---------- Dashboard List ---------- */
+.dashboard-list {
+  margin-top: 10px;
+  padding-left: 18px;
+}
+
+.dashboard-list li {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+/* ---------- Empty / Info Message ---------- */
+.info-text {
+  font-size: 14px;
+  color: #475569;
+  margin-top: 10px;
+}
+/* /////////////////////////////////////////////// */
+
+.regdiv {
+  background-color: #1e293b;
+  border-radius: 20px;
+  padding: 30px;
+  max-height: 500px;
+  width: 100%;
+  overflow: hidden;
+}
+.regdiv h2 {
+  text-align: center;
+  color: white;
+  font-size: xx-large;
+}
+.regdiv input {
+  padding: 11px;
+  width: 421px;
+  margin: 13px 24px;
+}
+.regdiv input::placeholder {
+  color: whitesmoke;
+}
+.regdiv button:hover {
+  background-color: white;
+  color: black;
+}
+.regdiv .child {
+  max-height: 500px;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+}
+.attendencetable {
+  background-color: #1e293b;
+  padding: 40px;
+  width: 1000px;
+  border-radius: 14px;
+  margin-left: -300px;
+  margin-top: 60px;
+}
+.attendencetable label input {
+  margin: 10px;
+  padding: 10px;
+}
+.attadencetracker {
+  background-color: #1e293b;
+  border-radius: 20px;
+  margin-left: -238px;
+  width: 1000px;
+  margin-top: 80px;
+}
+.attadencetracker .div {
+  max-height: 500px;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+}

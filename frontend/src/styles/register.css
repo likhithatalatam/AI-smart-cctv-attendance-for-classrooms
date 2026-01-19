@@ -1,0 +1,193 @@
+/* =========================
+   REGISTER STUDENT
+========================= */
+html,
+body {
+  height: 100%;
+  overflow: hidden; /* 🔒 prevent page scroll */
+}
+.register-page {
+  margin-left: 240px;
+  padding: 32px;
+  min-height: 90.7vh;
+  background: #f8fafc;
+  width: 80.2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  padding-top: 50px;
+}
+
+.register-subtitle {
+  color: #475569;
+  margin-bottom: 24px567;
+}
+
+/* Card */
+.register-card {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  width: 1000px;
+  max-height: 75vh; /* ✅ card height limit */
+  overflow-y: auto;
+  margin-bottom: 50px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+/* Hide scrollbar - Chrome, Edge, Safari */
+.register-card::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Hide scrollbar - Firefox */
+.register-card {
+  scrollbar-width: none;
+}
+
+/* Inputs */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-grid input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+  background-color: aliceblue;
+  color: black;
+}
+.form-grid select {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+  background-color: aliceblue;
+  color: #475569;
+}
+/* Upload */
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.upload-box {
+  border: 2px dashed #cbd5f5;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+}
+.upload-box input {
+  color: black;
+}
+.upload-box img {
+  width: 80px;
+}
+/* Custom file upload */
+.file-upload {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--secondary);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  font-size: 12m;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.file-upload:hover {
+  opacity: 0.9;
+}
+
+/* Optional: spacing between buttons */
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload-box h4 {
+  margin-bottom: 8px;
+  color: black;
+}
+
+.upload-box button {
+  margin-bottom: 8px;
+}
+.upload-box input {
+  padding-left: 12px;
+}
+.success {
+  display: block;
+  margin-top: 6px;
+  color: green;
+  font-size: 14px;
+}
+
+/* Button */
+.register-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: darkslategrey;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.register-btn:hover {
+  transition: ease-in;
+  background-color: black;
+}
+/* Camera */
+.camera-box {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.camera-box video {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.upload-box button:hover {
+  opacity: 0.9;
+}
+
+/* Message */
+.success_message {
+  margin-top: 12px;
+  font-weight: 500;
+  color: green;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-page {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .form-grid,
+  .upload-grid {
+    grid-template-columns: 1fr;
+  }
+}

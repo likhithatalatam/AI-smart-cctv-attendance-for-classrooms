@@ -1,0 +1,154 @@
+/* =========================
+   MANUAL ATTENDANCE
+========================= */
+
+.attendance-page {
+  margin-left: 240px;
+  padding: 32px;
+  min-height: 90.8vh;
+  background: #f8fafc;
+  width: 80.2vw;
+}
+
+.attendance-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.attendance-subtitle {
+  color: #475569;
+  margin-bottom: 20px;
+}
+
+/* Card */
+.attendance-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Date row */
+.date-row {
+  margin-bottom: 16px;
+}
+
+.date-row label {
+  font-size: 14px;
+  font-weight: 500;
+  color: black;
+}
+
+.date-row input {
+  margin-left: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5f5;
+  background-color: aliceblue;
+  color: black;
+}
+
+/* Message */
+/* .message {
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: red;
+} */
+.attendance-msg {
+  min-height: 22px; /* reserves space */
+  margin: 8px 0;
+  font-weight: 500;
+  color: cadetblue;
+}
+/* Table */
+.table-wrapper {
+  overflow-x: auto;
+}
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+td,
+th {
+  vertical-align: middle;
+}
+.table-wrapper {
+  max-height: 65vh;
+  overflow-y: auto;
+}
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-table th {
+  text-align: left;
+  padding: 12px;
+  background: aliceblue;
+  font-size: 14px;
+  border: 1px solid #cbd5f5;
+}
+
+.attendance-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: black;
+}
+
+/* Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.present-btn,
+.absent-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.present-btn {
+  background: #22c55e;
+  color: white;
+}
+
+.absent-btn {
+  background: #ef4444;
+  color: white;
+}
+
+/* Status */
+.status {
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.present {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.absent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status.pending {
+  color: #64748b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .attendance-page {
+    margin-left: 0;
+    padding: 20px;
+  }
+}

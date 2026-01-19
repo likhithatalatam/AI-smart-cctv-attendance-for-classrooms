@@ -3,3 +3,9 @@ node_modules/
 __pycache__/
 venv/
 *.db
+venv/
+venv310/
+__pycache__/
+.env
+*.db
+node_modules/

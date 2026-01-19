@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import StudentRegistration from "./pages/StudentRegistration";
 import ManualAttendance from "./pages/ManualAttendance";
@@ -16,7 +15,6 @@ export default function App() {
         {/* ===== PUBLIC ROUTES ===== */}
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
 
 
         {/* ===== PROTECTED ROUTES ===== */}

@@ -1,22 +1,5 @@
-# Python
-venv/
-venv310/
-__pycache__/
-*.pyc
-
-# Node
 node_modules/
-
-# Environment files
 .env
-
-# Build
-dist/
-build/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Database (optional)
-portal/attendance.db
+__pycache__/
+venv/
+*.db

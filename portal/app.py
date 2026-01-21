@@ -80,8 +80,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---------- Config ----------
 APP.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"sqlite:///{os.path.join(BASE_DIR, 'attendance.db')}"
+    "mysql+pymysql://cctv_user:cctv123@localhost:3306/cctv_attendance"
 )
+
 APP.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 APP.config["SECRET_KEY"] = "dev-secret"
 APP.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB upload

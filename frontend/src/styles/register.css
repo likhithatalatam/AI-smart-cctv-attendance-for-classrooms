@@ -191,3 +191,25 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.camera-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.camera-box video {
+  width: 100%;
+  max-height: 240px;
+  border-radius: 10px;
+  background: #000;
+}
+
+.capture-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+}

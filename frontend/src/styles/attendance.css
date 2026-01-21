@@ -73,6 +73,11 @@ td,
 th {
   vertical-align: middle;
 }
+.attendance-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
 .table-wrapper {
   max-height: 65vh;
   overflow-y: auto;

@@ -27,22 +27,27 @@ export default function StudentRegistration() {
   const [preview1, setPreview1] = useState<string | null>(null);
   const [preview2, setPreview2] = useState<string | null>(null);
 
+  /* ===== Image Source Tracking ===== */
+  const [image1FromCamera, setImage1FromCamera] = useState(false);
+  const [image2FromCamera, setImage2FromCamera] = useState(false);
+
   /* ===== Camera ===== */
   const [cameraFor, setCameraFor] = useState<1 | 2 | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   /* ===== Auth check ===== */
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      navigate("/");
-    }
+    if (!localStorage.getItem("token")) navigate("/");
   }, [navigate]);
 
   /* ===== Open Camera ===== */
   const openCamera = async (imgNo: 1 | 2) => {
     setCameraFor(imgNo);
+
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    streamRef.current = stream;
 
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
@@ -74,15 +79,44 @@ export default function StudentRegistration() {
       if (cameraFor === 1) {
         setImage1(file);
         setPreview1(previewURL);
+        setImage1FromCamera(true);
       } else {
         setImage2(file);
         setPreview2(previewURL);
+        setImage2FromCamera(true);
       }
     });
 
-    const stream = video.srcObject as MediaStream;
-    stream.getTracks().forEach((t) => t.stop());
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
     setCameraFor(null);
+  };
+
+  /* ===== Retake Camera Image ===== */
+  const retakeImage = (imgNo: 1 | 2) => {
+    if (imgNo === 1) {
+      setImage1(null);
+      setPreview1(null);
+      setImage1FromCamera(false);
+    } else {
+      setImage2(null);
+      setPreview2(null);
+      setImage2FromCamera(false);
+    }
+    openCamera(imgNo);
+  };
+
+  /* ===== Delete Uploaded Image ===== */
+  const deleteImage = (imgNo: 1 | 2) => {
+    if (imgNo === 1) {
+      setImage1(null);
+      setPreview1(null);
+      setImage1FromCamera(false);
+    } else {
+      setImage2(null);
+      setPreview2(null);
+      setImage2FromCamera(false);
+    }
   };
 
   /* ===== File Upload ===== */
@@ -98,10 +132,25 @@ export default function StudentRegistration() {
     if (imgNo === 1) {
       setImage1(file);
       setPreview1(previewURL);
+      setImage1FromCamera(false);
     } else {
       setImage2(file);
       setPreview2(previewURL);
+      setImage2FromCamera(false);
     }
+  };
+
+  /* ===== Check Duplicate Roll Number ===== */
+  const isDuplicateRollNo = async () => {
+    const res = await axios.get(`${API}/api/students?q=${rollNo}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    return res.data.students.some(
+      (s: any) => s.roll_no.toUpperCase() === rollNo.toUpperCase()
+    );
   };
 
   /* ===== Register Student ===== */
@@ -109,6 +158,11 @@ export default function StudentRegistration() {
     setMsg("");
 
     try {
+      if (await isDuplicateRollNo()) {
+        setMsg("Student with this Roll Number already exists");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("roll_no", rollNo);
       formData.append("name", name);
@@ -121,7 +175,6 @@ export default function StudentRegistration() {
       await axios.post(`${API}/api/register_student`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -136,6 +189,10 @@ export default function StudentRegistration() {
       setImage2(null);
       setPreview1(null);
       setPreview2(null);
+      setImage1FromCamera(false);
+      setImage2FromCamera(false);
+
+      setTimeout(() => setMsg(""), 1500);
     } catch (err: any) {
       setMsg(err.response?.data?.error || "Registration failed");
     }
@@ -143,13 +200,7 @@ export default function StudentRegistration() {
 
   /* ===== Form Validation ===== */
   const isFormValid =
-    rollNo &&
-    name &&
-    department &&
-    year &&
-    section &&
-    image1 &&
-    image2;
+    rollNo && name && department && year && section && image1 && image2;
 
   return (
     <div className="register-page">
@@ -159,111 +210,100 @@ export default function StudentRegistration() {
       </p>
 
       <div className="register-card">
-        {/* ===== Form Fields ===== */}
         <div className="form-grid">
-          <input
-            placeholder="Roll Number"
-            value={rollNo}
-            onChange={(e) => setRollNo(e.target.value)}
-          />
+          <input placeholder="Roll Number" value={rollNo} onChange={(e) => setRollNo(e.target.value)} />
+          <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
 
-          <input
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-
-          <select
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-          >
+          <select value={department} onChange={(e) => setDepartment(e.target.value)}>
             <option value="">Select Department</option>
-            {DEPARTMENTS.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
+            {DEPARTMENTS.map((d) => <option key={d}>{d}</option>)}
           </select>
 
           <select value={year} onChange={(e) => setYear(e.target.value)}>
             <option value="">Select Year</option>
-            {YEARS.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
+            {YEARS.map((y) => <option key={y}>{y}</option>)}
           </select>
 
-          <select
-            value={section}
-            onChange={(e) => setSection(e.target.value)}
-          >
+          <select value={section} onChange={(e) => setSection(e.target.value)}>
             <option value="">Select Section</option>
-            {SECTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            {SECTIONS.map((s) => <option key={s}>{s}</option>)}
           </select>
         </div>
 
-        {/* ===== Image Upload ===== */}
         <div className="upload-grid">
+          {/* IMAGE 1 */}
           <div className="upload-box">
             <h4>Image 1</h4>
-            <button onClick={() => openCamera(1)}>Open Camera</button>
-            <label className="file-upload">
-              Upload Image
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFile(e, 1)}
-                hidden
-              />
-            </label>
+
+            {!preview1 && cameraFor !== 1 && (
+              <>
+                <button onClick={() => openCamera(1)}>Open Camera</button>
+                <label className="file-upload">
+                  Upload Image
+                  <input hidden type="file" accept="image/*" onChange={(e) => handleFile(e, 1)} />
+                </label>
+              </>
+            )}
+
+            {cameraFor === 1 && (
+              <div className="camera-box">
+                <video ref={videoRef} autoPlay />
+                <button onClick={capturePhoto}>Capture</button>
+                <canvas ref={canvasRef} style={{ display: "none" }} />
+              </div>
+            )}
+
             {preview1 && (
-              <img src={preview1} className="image-preview" />
+              <>
+                <img src={preview1} className="image-preview" />
+                {image1FromCamera ? (
+                  <button onClick={() => retakeImage(1)}>Retake</button>
+                ) : (
+                  <button onClick={() => deleteImage(1)}>Delete Image</button>
+                )}
+              </>
             )}
           </div>
 
+          {/* IMAGE 2 */}
           <div className="upload-box">
             <h4>Image 2</h4>
-            <button onClick={() => openCamera(2)}>Open Camera</button>
-            <label className="file-upload">
-              Upload Image
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFile(e, 2)}
-                hidden
-              />
-            </label>
+
+            {!preview2 && cameraFor !== 2 && (
+              <>
+                <button onClick={() => openCamera(2)}>Open Camera</button>
+                <label className="file-upload">
+                  Upload Image
+                  <input hidden type="file" accept="image/*" onChange={(e) => handleFile(e, 2)} />
+                </label>
+              </>
+            )}
+
+            {cameraFor === 2 && (
+              <div className="camera-box">
+                <video ref={videoRef} autoPlay />
+                <button onClick={capturePhoto}>Capture</button>
+                <canvas ref={canvasRef} style={{ display: "none" }} />
+              </div>
+            )}
 
             {preview2 && (
-              <img src={preview2} className="image-preview" />
+              <>
+                <img src={preview2} className="image-preview" />
+                {image2FromCamera ? (
+                  <button onClick={() => retakeImage(2)}>Retake</button>
+                ) : (
+                  <button onClick={() => deleteImage(2)}>Delete Image</button>
+                )}
+              </>
             )}
           </div>
         </div>
-
-        {/* ===== Submit ===== */}
-        <button
-          className="register-btn"
-          onClick={registerStudent}
-          disabled={!isFormValid}
-        >
+        <button className="register-btn" disabled={!isFormValid} onClick={registerStudent}>
           Register Student
         </button>
 
         {msg && <p className="success_message">{msg}</p>}
-
-        {/* ===== Camera Preview ===== */}
-        {cameraFor && (
-          <div className="camera-box">
-            <video ref={videoRef} autoPlay />
-            <button onClick={capturePhoto}>Capture</button>
-            <canvas ref={canvasRef} style={{ display: "none" }} />
-          </div>
-        )}
       </div>
     </div>
   );

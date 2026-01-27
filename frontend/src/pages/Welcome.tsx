@@ -18,13 +18,6 @@ export default function Welcome() {
                     >
                         Login
                     </button>
-
-                    <button
-                        className="secondary"
-                        onClick={() => navigate("/signup")}
-                    >
-                        Sign Up
-                    </button>
                 </div>
             </div>
         </div>

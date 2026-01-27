@@ -38,6 +38,7 @@ from reportlab.platypus import Spacer
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.styles import getSampleStyleSheet
+from encoding_utils import update_encodings
 
 
 def draw_page_border(canvas, doc):
@@ -327,11 +328,9 @@ def register_student():
         if not image1 or not image2:
             return jsonify({"error": "Two images are required"}), 400
 
-        # Check duplicate
         if Student.query.filter_by(roll_no=roll_no).first():
             return jsonify({"error": "Student already exists"}), 409
 
-        # Create dataset directory
         dataset_base = os.path.join(BASE_DIR, "dataset")
         os.makedirs(dataset_base, exist_ok=True)
 
@@ -343,6 +342,9 @@ def register_student():
 
         image1.save(img1_path)
         image2.save(img2_path)
+
+        # 🔥 AUTO ENCODING (NEW)
+        update_encodings(roll_no, [img1_path, img2_path])
 
         student = Student(
             roll_no=roll_no,

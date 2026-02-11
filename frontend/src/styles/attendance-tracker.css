@@ -229,3 +229,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 13px;
   color: #374151;
 }
+.hint-text {
+  margin: 16px 0;
+  padding: 10px;
+  text-align: center;
+  color: #555;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+.export-btns button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

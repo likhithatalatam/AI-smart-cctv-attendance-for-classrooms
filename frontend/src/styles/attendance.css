@@ -8,6 +8,7 @@
   min-height: 90.8vh;
   background: #f8fafc;
   width: 80.2vw;
+  overflow-x: hidden;
 }
 
 .attendance-title {
@@ -78,9 +79,23 @@ th {
   top: 0;
   z-index: 2;
 }
+.attendance-table select {
+  margin-left: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5f5;
+  background-color: aliceblue;
+  color: black;
+}
 .table-wrapper {
   max-height: 65vh;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.table-wrapper::-webkit-scrollbar {
+  display: none;
+  height: 0px;
 }
 .attendance-table {
   width: 100%;
@@ -89,7 +104,6 @@ th {
 
 .attendance-table th {
   text-align: left;
-  padding: 12px;
   background: aliceblue;
   font-size: 14px;
   border: 1px solid #cbd5f5;

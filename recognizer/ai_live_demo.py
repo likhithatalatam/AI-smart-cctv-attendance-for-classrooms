@@ -12,19 +12,19 @@ CONFIDENCE = 0.92
 
 # ----------------------------------------
 
-print("📦 Loading face encodings...")
+print("Loading face encodings...")
 with open(ENCODINGS_FILE, "rb") as f:
     data = pickle.load(f)
 
 known_encodings = data["encodings"]
-known_rollnos = data["roll_nos"]
+known_rollnos = data["names"]
 
-print(f"✅ Loaded {len(known_rollnos)} registered students")
+print(f"Loaded {len(known_rollnos)} registered students")
 
 cap = cv2.VideoCapture(0)
 marked_today = set()  # avoid spamming same student
 
-print("🎥 Live Multi-Face Attendance Started (Press Q to stop)")
+print("Live Multi-Face Attendance Started (Press Q to stop)")
 
 while True:
     ret, frame = cap.read()
@@ -64,10 +64,10 @@ while True:
 
                 try:
                     r = requests.post(API_URL, json=payload)
-                    print(f"📡 Attendance marked for {name} → {r.status_code}")
+                    print(f"Attendance marked for {name} → {r.status_code}")
                     marked_today.add(name)
                 except Exception as e:
-                    print("❌ API Error:", e)
+                    print("API Error:", e)
 
         # draw box + label
         top, right, bottom, left = location

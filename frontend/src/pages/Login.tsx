@@ -19,6 +19,7 @@ export default function Login() {
         password,
       });
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.user.role);
       navigate("/dashboard");
     } catch {
       setMsg("Invalid username or password");

@@ -1,10 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   MdDashboard,
   MdPersonAdd,
   MdEdit,
   MdBarChart,
   MdLogout,
+  MdOutlineAdminPanelSettings,
+  MdOutlineAcUnit,
 } from "react-icons/md";
 import "../styles/navbar.css";
 
@@ -12,22 +15,43 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRole(localStorage.getItem("role"));
+  }, []);
+
   const isActive = (path: string) =>
     location.pathname === path ? "active" : "";
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     navigate("/");
   };
 
   return (
     <div className="navbar">
-      {/* Title */}
+      {/* TOP */}
       <div className="navbar-top">
         <span className="navbar-title">CCTV Attendance</span>
+
+        {/* ROLE INDICATOR */}
+        {role === "admin" && (
+          <div className="navbar-role">
+            <MdOutlineAdminPanelSettings className="nav-icon" />
+            <span>Admin</span>
+          </div>
+        )}
+
+        {role === "faculty" && (
+          <div className="navbar-role">
+            <MdOutlineAcUnit className="nav-icon" />
+            <span>Faculty</span>
+          </div>
+        )}
       </div>
 
-      {/* Menu */}
+      {/* DASHBOARD – BOTH */}
       <div
         className={`navbar-item ${isActive("/dashboard")}`}
         onClick={() => navigate("/dashboard")}
@@ -36,6 +60,18 @@ export default function Navbar() {
         <span>Dashboard</span>
       </div>
 
+      {/* ADMIN ONLY */}
+      {role === "admin" && (
+        <div
+          className={`navbar-item ${isActive("/admin/master-data")}`}
+          onClick={() => navigate("/admin/master-data")}
+        >
+          <MdOutlineAdminPanelSettings className="nav-icon" />
+          <span>Master Data</span>
+        </div>
+      )}
+
+      {/* BOTH ADMIN & FACULTY */}
       <div
         className={`navbar-item ${isActive("/register")}`}
         onClick={() => navigate("/register")}
@@ -60,7 +96,7 @@ export default function Navbar() {
         <span>Attendance Tracker</span>
       </div>
 
-      {/* Logout */}
+      {/* LOGOUT – BOTH */}
       <div className="navbar-item logout" onClick={logout}>
         <MdLogout className="nav-icon" />
         <span>Logout</span>

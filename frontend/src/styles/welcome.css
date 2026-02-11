@@ -64,7 +64,7 @@
 }
 
 /* Login */
-.welcome-actions .primary {
+.welcome-actions button {
   background-color: transparent;
   color: #ffffff;
   border: 2px solid #ffffff;

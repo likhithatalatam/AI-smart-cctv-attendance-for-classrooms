@@ -20,6 +20,9 @@ export default function StudentRegistration() {
   const [year, setYear] = useState("");
   const [section, setSection] = useState("");
   const [msg, setMsg] = useState("");
+  const [image1Submitted, setImage1Submitted] = useState(false);
+  const [image2Submitted, setImage2Submitted] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [batch, setBatch] = useState("");
 
   /* ===== Images ===== */
@@ -67,10 +70,10 @@ export default function StudentRegistration() {
     const fetchMasterData = async () => {
       try {
         const [branchesRes, subjectsRes, sectionsRes, batchesRes] = await Promise.all([
-          axios.get(`${API}/api/admin/branches`, { headers }),
-          axios.get(`${API}/api/admin/subjects`, { headers }),
-          axios.get(`${API}/api/admin/sections`, { headers }),
-          axios.get(`${API}/api/admin/batches`, { headers }),
+          axios.get(`${API}/api/branches`, { headers }),
+          axios.get(`${API}/api/subjects`, { headers }),
+          axios.get(`${API}/api/sections`, { headers }),
+          axios.get(`${API}/api/batches`, { headers }),
         ]);
 
         setBranches(branchesRes.data);
@@ -84,22 +87,43 @@ export default function StudentRegistration() {
 
     fetchMasterData();
   }, []);
+  useEffect(() => {
+    if (!batch || !year || !department) {
+      setSections([]);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const selectedBranch = branches.find(
+      (b) => b.name === department && String(b.batch_id) === batch
+    );
+
+    if (!selectedBranch) {
+      setSections([]);
+      return;
+    }
+
+    axios.get(`${API}/api/sections`, {
+      headers,
+      params: {
+        batch_id: batch,
+        branch_id: selectedBranch.id,
+        year: year,
+      },
+    })
+      .then(res => {
+        setSections(res.data);
+      })
+      .catch(err => console.error("Sections error:", err));
+
+  }, [batch, year, department, branches]);
 
   const filteredBranches = branches.filter(
     (b) => String(b.batch_id) === batch
   );
 
-  const selectedBranch = filteredBranches.find(
-    (b) => b.name === department
-  );
-
-  const filteredSections = sections.filter(
-    (s) =>
-      String(s.batch_id) === batch &&
-      String(s.year) === year &&
-      selectedBranch &&
-      String(s.branch_id) === String(selectedBranch.id)
-  );
   /* ===== Capture Photo ===== */
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current || !cameraFor) return;
@@ -143,10 +167,12 @@ export default function StudentRegistration() {
       setImage1(null);
       setPreview1(null);
       setImage1FromCamera(false);
+      setImage1Submitted(false);
     } else {
       setImage2(null);
       setPreview2(null);
       setImage2FromCamera(false);
+      setImage2Submitted(false);
     }
     openCamera(imgNo);
   };
@@ -185,28 +211,38 @@ export default function StudentRegistration() {
     }
   };
 
-  /* ===== Check Duplicate Roll Number ===== */
-  const isDuplicateRollNo = async () => {
-    const res = await axios.get(`${API}/api/students?q=${rollNo}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+  // /* ===== Check Duplicate Roll Number ===== */
+  // const isDuplicateRollNo = async () => {
+  //   const res = await axios.get(`${API}/api/students?q=${rollNo}`, {
+  //     headers: {
+  //       Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //     },
+  //   });
 
-    return res.data.students.some(
-      (s: any) => s.roll_no.toUpperCase() === rollNo.toUpperCase()
-    );
-  };
+  //   return res.data.students.some(
+  //     (s: any) => s.roll_no.toUpperCase() === rollNo.toUpperCase()
+  //   );
+  // };
 
   /* ===== Register Student ===== */
   const registerStudent = async () => {
     setMsg("");
+    if (
+      !rollNo ||
+      !name ||
+      !department ||
+      !year ||
+      !section ||
+      !batch ||
+      !image1 ||
+      !image2
+    ) {
+      setMsg("Please fill all fields and upload both images");
+      setIsError(true);
+      return;
+    }
 
     try {
-      if (await isDuplicateRollNo()) {
-        setMsg("Student with this Roll Number already exists");
-        return;
-      }
 
       const formData = new FormData();
       formData.append("roll_no", rollNo);
@@ -223,8 +259,9 @@ export default function StudentRegistration() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
+      setSubmitted(true);
       setMsg("Student registered successfully");
+      setIsError(false);
 
       setRollNo("");
       setName("");
@@ -240,6 +277,7 @@ export default function StudentRegistration() {
       setImage2FromCamera(false);
 
       setTimeout(() => setMsg(""), 1500);
+
     } catch (err: any) {
       setMsg(err.response?.data?.error || "Registration failed");
     }
@@ -308,8 +346,10 @@ export default function StudentRegistration() {
             disabled={!batch || !year || !department}
           >
             <option value="">Select Section</option>
-            {filteredSections.map((s) => (
-              <option key={s.id}>{s.name}</option>
+            {sections.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
             ))}
           </select>
         </div>
@@ -340,10 +380,17 @@ export default function StudentRegistration() {
             {preview1 && (
               <>
                 <img src={preview1} className="image-preview" />
-                {image1FromCamera ? (
-                  <button onClick={() => retakeImage(1)}>Retake</button>
-                ) : (
-                  <button onClick={() => deleteImage(1)}>Delete Image</button>
+
+                {!image1Submitted && (
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button onClick={() => retakeImage(1)}>
+                      Retake
+                    </button>
+
+                    <button onClick={() => setImage1Submitted(true)}>
+                      Submit
+                    </button>
+                  </div>
                 )}
               </>
             )}
@@ -374,20 +421,31 @@ export default function StudentRegistration() {
             {preview2 && (
               <>
                 <img src={preview2} className="image-preview" />
-                {image2FromCamera ? (
-                  <button onClick={() => retakeImage(2)}>Retake</button>
-                ) : (
-                  <button onClick={() => deleteImage(2)}>Delete Image</button>
+
+                {!image2Submitted && (
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button onClick={() => retakeImage(2)}>
+                      Retake
+                    </button>
+
+                    <button onClick={() => setImage2Submitted(true)}>
+                      Submit
+                    </button>
+                  </div>
                 )}
               </>
             )}
           </div>
         </div>
-        <button className="register-btn" disabled={!isFormValid} onClick={registerStudent}>
+        <button className="register-btn" onClick={registerStudent}>
           Register Student
         </button>
 
-        {msg && <p className="success_message">{msg}</p>}
+        {msg && (
+          <p className={isError ? "error_message" : "success_message"}>
+            {msg}
+          </p>
+        )}
       </div>
     </div>
   );

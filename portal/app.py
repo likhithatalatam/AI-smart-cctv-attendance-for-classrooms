@@ -17,6 +17,7 @@ Adjust SECRET_KEY and JWT settings for production.
 
 import os
 import datetime
+import threading
 from functools import wraps
 
 from flask import Flask, request, jsonify, g
@@ -54,7 +55,9 @@ APP = Flask(__name__)
 # ---------- CORS ----------
 CORS(
     APP,
-    resources={r"/api/*": {"origins": "http://localhost:5173"}},
+    resources={
+        r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:5174"]}
+    },
     supports_credentials=True,
     allow_headers=["Authorization", "Content-Type"],
     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -65,7 +68,6 @@ from flask import make_response
 def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # ✅ Allow CORS preflight
         if request.method == "OPTIONS":
             return "", 200
 
@@ -89,6 +91,7 @@ def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         user = getattr(request, "user", None)
+        print("USER ROLE: ", user)
         if not user:
             return jsonify({"error": "Unauthorized"}), 401
 
@@ -138,7 +141,15 @@ def list_batches_public():
 @APP.route("/api/branches", methods=["GET"])
 @auth_required
 def list_branches_public():
-    branches = Branch.query.order_by(Branch.batch_id, Branch.name).all()
+    batch_id = request.args.get("batch_id")
+
+    query = Branch.query
+
+    if batch_id:
+        query = query.filter_by(batch_id=int(batch_id))
+
+    branches = query.order_by(Branch.name).all()
+
     return jsonify(
         [{"id": b.id, "name": b.name, "batch_id": b.batch_id} for b in branches]
     )
@@ -173,6 +184,43 @@ def list_subjects_public():
             }
             for s in query.all()
         ]
+    )
+
+
+@APP.route("/api/admin/subjects", methods=["GET"])
+@auth_required
+def list_admin_subjects():
+    batch_id = request.args.get("batch_id")
+    branch_id = request.args.get("branch_id")
+    year = request.args.get("year")
+
+    query = Subject.query
+
+    if batch_id:
+        query = query.filter_by(batch_id=int(batch_id))
+
+    if branch_id:
+        query = query.filter_by(branch_id=int(branch_id))
+
+    if year:
+        query = query.filter_by(year=int(year))
+
+    subjects = query.order_by(Subject.name.asc()).all()
+
+    return (
+        jsonify(
+            [
+                {
+                    "id": s.id,
+                    "name": s.name,
+                    "batch_id": s.batch_id,
+                    "branch_id": s.branch_id,
+                    "year": s.year,
+                }
+                for s in subjects
+            ]
+        ),
+        200,
     )
 
 
@@ -227,6 +275,19 @@ class Student(DB.Model):
     year = DB.Column(DB.String(32))
     section = DB.Column(DB.String(32))
     photo_url = DB.Column(DB.String(1024))
+
+
+class PeriodSubject(DB.Model):
+    __tablename__ = "period_subjects"
+
+    id = DB.Column(DB.Integer, primary_key=True)
+    batch_id = DB.Column(DB.Integer, nullable=False)
+    branch_id = DB.Column(DB.Integer, nullable=False)
+    year = DB.Column(DB.Integer, nullable=False)
+    section = DB.Column(DB.String(50), nullable=False)
+    date = DB.Column(DB.Date, nullable=False)
+    period = DB.Column(DB.Integer, nullable=False)
+    subject_id = DB.Column(DB.Integer, nullable=False)
 
 
 class AttendanceSettings(DB.Model):
@@ -385,7 +446,7 @@ def dashboard_stats():
         Attendance.query.filter(
             Attendance.timestamp >= start,
             Attendance.timestamp <= end,
-            Attendance.method == "manual",
+            Attendance.method.in_(["manual", "recognition"]),
         )
         .order_by(Attendance.timestamp.desc())
         .all()
@@ -425,12 +486,19 @@ def dashboard_stats():
 def register_student():
     try:
         roll_no = request.form.get("roll_no", "").strip().upper()
+
         name = request.form.get("name", "").strip().upper()
 
         department = request.form.get("department", "").strip().upper()
         year = request.form.get("year", "").strip()
         section = request.form.get("section", "").strip().upper()
         batch_id = int(request.form.get("batch"))
+
+        # 🔹 CHECK DUPLICATE ROLL NUMBER
+        existing_student = Student.query.filter_by(roll_no=roll_no).first()
+
+        if existing_student:
+            return jsonify({"error": "Student already exists"}), 400
 
         image1 = request.files.get("image1")
         image2 = request.files.get("image2")
@@ -456,9 +524,6 @@ def register_student():
         image1.save(img1_path)
         image2.save(img2_path)
 
-        # 🔥 AUTO ENCODING (NEW)
-        update_encodings(roll_no, [img1_path, img2_path])
-
         student = Student(
             roll_no=roll_no,
             name=name,
@@ -471,6 +536,16 @@ def register_student():
         DB.session.add(student)
         DB.session.commit()
 
+        # 🔹 Run encoding in background (non-blocking)
+        def background_encoding():
+            try:
+                update_encodings(roll_no, [img1_path, img2_path])
+                print(f"Encoding completed for {roll_no}")
+            except Exception as e:
+                print("Encoding failed:", e)
+
+        threading.Thread(target=background_encoding).start()
+
         return (
             jsonify({"msg": "Student registered successfully", "roll_no": roll_no}),
             201,
@@ -479,6 +554,93 @@ def register_student():
     except Exception as e:
         print("REGISTER ERROR:", e)
         return jsonify({"error": str(e)}), 500
+
+
+@APP.route("/api/admin/period-subjects", methods=["POST"])
+@auth_required
+def save_period_subjects():
+    data = request.json or {}
+
+    batch = data.get("batch")
+    branch_id = data.get("branch_id")
+    year = data.get("year")
+    section = data.get("section")
+    date_str = data.get("date")
+    period_subjects = data.get("periodSubjects")
+
+    if (
+        not batch
+        or not branch_id
+        or not year
+        or not section
+        or not date_str
+        or not period_subjects
+    ):
+        return jsonify({"error": "Missing fields"}), 400
+
+    try:
+        date_obj = datetime.date.fromisoformat(date_str)
+    except ValueError:
+        return jsonify({"error": "Invalid date format"}), 400
+
+    # Delete only for this specific section + date
+    PeriodSubject.query.filter_by(
+        batch_id=int(batch),
+        branch_id=int(branch_id),
+        year=int(year),
+        section=section,
+        date=date_obj,
+    ).delete()
+
+    # Insert new records
+    for period, subject_id in period_subjects.items():
+        ps = PeriodSubject(
+            batch_id=int(batch),
+            branch_id=int(branch_id),
+            year=int(year),
+            section=section,
+            date=date_obj,
+            period=int(period),
+            subject_id=int(subject_id),
+        )
+        DB.session.add(ps)
+
+    DB.session.commit()
+
+    return jsonify({"msg": "Period subjects saved"}), 200
+
+
+@APP.route("/api/period-subjects", methods=["GET"])
+@auth_required
+def fetch_period_subjects():
+    batch = request.args.get("batch")
+    branch_id = request.args.get("branch_id")
+    year = request.args.get("year")
+    section = request.args.get("section")
+    date_str = request.args.get("date")
+
+    if not batch or not branch_id or not year or not section or not date_str:
+        return jsonify({}), 200
+
+    try:
+        date_obj = datetime.date.fromisoformat(date_str)
+    except ValueError:
+        return jsonify({}), 200
+
+    records = PeriodSubject.query.filter_by(
+        batch_id=int(batch),
+        branch_id=int(branch_id),
+        year=int(year),
+        section=section,
+        date=date_obj,
+    ).all()
+
+    result = {}
+
+    for r in records:
+        result[r.period] = r.subject_id
+
+    return jsonify(result), 200
 
 
 @APP.route("/api/admin/branches", methods=["POST"])
@@ -1163,12 +1325,11 @@ def attendance_by_date():
             result[sid] = {}
 
         # 🔹 recognition → mark all periods present
-        if r.method == "recognition":
-            for p in range(1, 8):
-                result[sid][p] = {
-                    "status": "present",
-                    "method": "recognition",
-                }
+        if r.method == "recognition" and r.period:
+            result[sid][r.period] = {
+                "status": r.extra.get("status", "present"),
+                "method": "recognition",
+            }
 
         # 🔹 manual attendance
         if r.method == "manual" and r.period:
@@ -1545,12 +1706,14 @@ def auto_attendance():
         return jsonify({"msg": "recognized id not mapped to student"}), 200
 
     # ---------- PARSE TIMESTAMP ----------
-    ts = datetime.datetime.utcnow()
+    ts = datetime.datetime.now()
     if timestamp:
         try:
-            ts = datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-        except Exception:
-            pass
+            ts = datetime.datetime.fromisoformat(timestamp)
+        except:
+            ts = datetime.datetime.now()
+    else:
+        ts = datetime.datetime.now()
 
     start = ts.replace(hour=0, minute=0, second=0, microsecond=0)
     end = ts.replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -1613,7 +1776,7 @@ def auto_attendance():
             extra={"confidence": confidence, "status": "present"},
         )
         DB.session.add(att)
-
+    DB.session.commit()
     return (
         jsonify(
             {
@@ -1696,6 +1859,8 @@ def server_error(e):
 
 # ---------- Run ----------
 if __name__ == "__main__":
+    with APP.app_context():
+        DB.create_all()
     # For local dev only. In production use gunicorn/uwsgi.
     port = int(os.environ.get("PORT", 5000))
     APP.run(host="0.0.0.0", port=port, debug=True)

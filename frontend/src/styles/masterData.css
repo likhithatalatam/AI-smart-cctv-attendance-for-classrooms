@@ -143,19 +143,18 @@
   border-radius: 5px;
 }
 
-/* Sticky header (optional but recommended) */
 .master-table thead th {
   position: sticky;
   top: 0;
   background: aliceblue;
-  z-index: 1;
+  z-index: 2;
   box-shadow: 0 1px 0 #ddd;
   isolation: isolate;
 }
 .master-table-wrapper {
-  max-height: 360px;
+  max-height: 57vh;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   position: relative;
   scrollbar-width: none;
   -ms-overflow-style: none;

@@ -1,13 +1,9 @@
-/* =========================
-   LOGIN PAGE STYLES
-========================= */
-
 .login-page {
   min-height: 100vh;
   width: 100vw;
 
-  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-    url("/ID.jpeg");
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("/ID.jpeg");
 
   background-size: cover;
   background-position: center;
@@ -18,7 +14,6 @@
   justify-content: center;
 }
 
-/* Card */
 .login-card {
   width: 100%;
   max-width: 432px;
@@ -30,7 +25,6 @@
   backdrop-filter: blur(6px);
 }
 
-/* Title */
 .login-card h1 {
   font-size: 28px;
   font-weight: 700;
@@ -38,14 +32,12 @@
   margin-bottom: 8px;
 }
 
-/* Subtitle */
 .login-card p {
   font-size: 14px;
   color: #e5e7eb;
   margin-bottom: 28px;
 }
 
-/* Inputs */
 .login-card input {
   width: 93%;
   padding: 12px 14px;
@@ -56,7 +48,6 @@
   font-size: 14px;
 }
 
-/* Button */
 .login-card .primary {
   width: 100%;
   padding: 12px;
@@ -72,15 +63,25 @@
 .login-card .primary:hover {
   background-color: #0b1b4d;
 }
-
-/* Error */
 .login-error {
   margin-top: 12px;
   color: #fecaca;
   font-size: 14px;
 }
+.backbtn {
+  display: flex;
+  border: none;
+}
 
-/* Mobile */
+.back-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+  padding: 5px;
+}
 @media (max-width: 480px) {
   .login-card {
     margin: 0 16px;

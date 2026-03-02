@@ -77,7 +77,6 @@ export default function MasterData() {
 
     /* ---------------- ADD HANDLER ---------------- */
     const handleAdd = async () => {
-        // ✅ FIX: prevent backend 500 for sections
         if (activeTab === "sections") {
             if (
                 !formData.name ||
@@ -140,10 +139,10 @@ export default function MasterData() {
         setShowModal(false);
         setFormData({});
 
-        // 🔥 refresh active table
+        //refresh active table
         await fetchData();
 
-        // 🔥 refresh master dropdown sources
+        //refresh master dropdown sources
         await fetchBatches();
         await fetchBranches();
     };
@@ -232,7 +231,15 @@ export default function MasterData() {
                                                 ? "Batch"
                                                 : col === "year"
                                                     ? "Year"
-                                                    : col}
+                                                    : col === "name" && activeTab === "branches"
+                                                        ? "Branch"
+                                                        : col === "name" && activeTab === "sections"
+                                                            ? "Section"
+                                                            : col === "name" && activeTab === "subjects"
+                                                                ? "Subject"
+                                                                : col === "label"
+                                                                    ? "Batch"
+                                                                    : col}
                                     </th>
                                 ))}
                                 <th>Actions</th>
@@ -294,7 +301,7 @@ export default function MasterData() {
                                     }
                                 />
 
-                                {/* ✅ SELECT BATCH FIRST */}
+                                {/* SELECT BATCH FIRST */}
                                 <select
                                     value={formData.batch_id || ""}
                                     onChange={(e) =>
@@ -326,7 +333,7 @@ export default function MasterData() {
                                     }
                                 />
 
-                                {/* ✅ STEP 1: BATCH */}
+                                {/* STEP 1: BATCH */}
                                 <select
                                     value={formData.batch_id ?? ""}
                                     onChange={(e) => {
@@ -347,7 +354,7 @@ export default function MasterData() {
                                     ))}
                                 </select>
 
-                                {/* ✅ STEP 2: BRANCH (FILTERED BY BATCH) */}
+                                {/* STEP 2: BRANCH (FILTERED BY BATCH) */}
                                 <select
                                     value={formData.branch_id ?? ""}
                                     disabled={!formData.batch_id}
@@ -440,7 +447,7 @@ export default function MasterData() {
                                         setFormData({
                                             ...formData,
                                             batch_id: Number(e.target.value),
-                                            branch_id: null, // 🔥 reset
+                                            branch_id: null, // reset
                                         })
                                     }
                                 >

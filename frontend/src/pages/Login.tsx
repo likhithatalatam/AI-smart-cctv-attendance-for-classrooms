@@ -29,27 +29,44 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
+        <div className="backbtn">
+          <button
+            type="button"
+            className="back-btn"
+            onClick={() => navigate("/")}
+          >
+            ← Back
+          </button>
+        </div>
         <h1>Login</h1>
         <p>Access your CCTV attendance dashboard</p>
 
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            login();
+          }}
+        >
+          <input
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button className="primary" onClick={login}>
-          Login
-        </button>
+          <button className="primary" type="submit">
+            Login
+          </button>
+        </form>
 
         {msg && <div className="login-error">{msg}</div>}
+
       </div>
     </div>
   );

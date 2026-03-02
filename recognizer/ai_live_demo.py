@@ -20,7 +20,8 @@ known_encodings = data["encodings"]
 known_rollnos = data["names"]
 
 print(f"Loaded {len(known_rollnos)} registered students")
-
+print("Encodings:", len(known_encodings))
+print("Roll Nos:", len(known_rollnos))
 cap = cv2.VideoCapture(0)
 marked_today = set()  # avoid spamming same student
 

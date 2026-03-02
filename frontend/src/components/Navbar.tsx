@@ -38,14 +38,14 @@ export default function Navbar() {
         {/* ROLE INDICATOR */}
         {role === "admin" && (
           <div className="navbar-role">
-            <MdOutlineAdminPanelSettings className="nav-icon" />
+            {/* <MdOutlineAdminPanelSettings className="nav-icon" /> */}
             <span>Admin</span>
           </div>
         )}
 
         {role === "faculty" && (
           <div className="navbar-role">
-            <MdOutlineAcUnit className="nav-icon" />
+            {/* <MdOutlineAcUnit className="nav-icon" /> */}
             <span>Faculty</span>
           </div>
         )}

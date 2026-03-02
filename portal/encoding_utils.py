@@ -15,8 +15,10 @@ def update_encodings(roll_no, image_paths):
     if os.path.exists(ENCODINGS_PATH):
         with open(ENCODINGS_PATH, "rb") as f:
             data = pickle.load(f)
-            encodings = data["encodings"]
-            roll_nos = data["roll_nos"]
+            encodings = data.get("encodings", [])
+            roll_nos = data.get("roll_nos", [])
+
+    faces_detected = 0  # Track faces
 
     for img_path in image_paths:
         image = face_recognition.load_image_file(img_path)
@@ -27,8 +29,15 @@ def update_encodings(roll_no, image_paths):
 
         encodings.append(face_encs[0])
         roll_nos.append(roll_no)
+        faces_detected += 1
 
+    # If no face detected in any image
+    if faces_detected < len(image_paths):
+        return False, "Face not detected in uploaded images"
+
+    # Save updated encodings
     with open(ENCODINGS_PATH, "wb") as f:
         pickle.dump({"encodings": encodings, "roll_nos": roll_nos}, f)
 
-    print(f"✅ Encoding updated for {roll_no}")
+    print(f"Encoding updated for {roll_no}")
+    return True, "Encoding successful"

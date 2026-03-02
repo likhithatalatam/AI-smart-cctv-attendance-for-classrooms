@@ -75,11 +75,22 @@ export default function ManualAttendance() {
   useEffect(() => {
     axios.get(`${API}/api/batches`, authHeader)
       .then(r => setBatches(r.data));
+  }, []);
+
+  useEffect(() => {
+    if (!batch) {
+      setBranches([]);
+      return;
+    }
+
     axios.get(`${API}/api/branches`, {
       ...authHeader,
       params: { batch_id: batch }
-    }).then(r => setBranches(r.data));
-  }, []);
+    })
+      .then(r => setBranches(r.data))
+      .catch(console.error);
+
+  }, [batch]);
 
   /* ---------- LOAD SECTIONS (BRANCH + YEAR) ---------- */
   useEffect(() => {
@@ -104,11 +115,35 @@ export default function ManualAttendance() {
     }).then(r => setSections(r.data));
   }, [batch, branch, year, branches]);
 
+  useEffect(() => {
+    if (!batch || !branch || !year || !section || !date) return;
+
+    const selectedBranch = branches.find(
+      b => b.name === branch && String(b.batch_id) === batch
+    );
+
+    if (!selectedBranch) return;
+
+    axios.get(`${API}/api/period-subjects`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: {
+        batch,
+        branch_id: selectedBranch.id,
+        year,
+        section,
+        date
+      }
+    })
+      .then(res => {
+        setPeriodSubjects(res.data);
+      });
+
+  }, [batch, branch, year, section, date, branches]);
 
   useEffect(() => {
     if (!date || !batch || !branch || !year || !section) return;
 
-    const interval = setInterval(() => {
+    const fetchAttendance = () => {
       axios
         .get(`${API}/api/attendance/by-date`, {
           headers: {
@@ -136,7 +171,13 @@ export default function ManualAttendance() {
           setAttendanceMap(mapped);
         })
         .catch(() => { });
-    }, 4000); // 🔁 refresh every 4 seconds
+    };
+
+    // CALL IMMEDIATELY
+    fetchAttendance();
+
+    // THEN START AUTO REFRESH
+    const interval = setInterval(fetchAttendance, 4000);
 
     return () => clearInterval(interval);
   }, [date, batch, branch, year, section]);
@@ -184,6 +225,35 @@ export default function ManualAttendance() {
       .catch(err => console.error("STUDENTS ERROR:", err));
   }, [token, branch, year, section, batch]);
 
+
+  const savePeriodSubjects = async () => {
+    if (!batch || !branch || !year) {
+      setMsg("Select batch, branch and year");
+      return;
+    }
+
+    const selectedBranch = branches.find(
+      b => b.name === branch && String(b.batch_id) === batch
+    );
+
+    if (!selectedBranch) return;
+
+    await axios.post(
+      `${API}/api/admin/period-subjects`,
+      {
+        batch,
+        branch_id: selectedBranch.id,
+        year,
+        section,
+        date,
+        periodSubjects
+
+      },
+      authHeader
+    );
+
+    setMsg("Period subjects saved successfully");
+  };
   /* ---------- MARK MANUAL ATTENDANCE ---------- */
   const markAttendance = async (
     student: Student,
@@ -303,7 +373,12 @@ export default function ManualAttendance() {
             ))}
           </select>
         </div>
-
+        <button
+          className="save-period-btn"
+          onClick={savePeriodSubjects}
+        >
+          Save Period Subjects
+        </button>
         <p className="attendance-msg">{msg || "\u00A0"}</p>
 
         <div className="table-wrapper">
@@ -370,7 +445,7 @@ export default function ManualAttendance() {
               ))}
             </tbody>
           </table>
-          
+
         </div>
       </div>
     </div>

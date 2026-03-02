@@ -10,18 +10,25 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    axios
-      .get(`${API}/api/dashboard-stats`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setStats(res.data);
-      })
-      .catch((err) => {
-        console.error("Dashboard stats error:", err);
-      });
+    const fetchStats = () => {
+      axios
+        .get(`${API}/api/dashboard-stats`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          setStats(res.data);
+        })
+        .catch((err) => {
+          console.error("Dashboard stats error:", err);
+        });
+    };
+
+    fetchStats();
+
+    const interval = setInterval(fetchStats, 5000);
+    return () => clearInterval(interval);
   }, []);
 
 

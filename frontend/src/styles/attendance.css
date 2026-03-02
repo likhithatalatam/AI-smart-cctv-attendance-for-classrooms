@@ -51,34 +51,48 @@
 }
 
 /* Message */
-/* .message {
-  margin-bottom: 12px;
-  font-weight: 500;
-  color: red;
-} */
 .attendance-msg {
-  min-height: 22px; /* reserves space */
+  min-height: 22px;
   margin: 8px 0;
   font-weight: 500;
   color: cadetblue;
 }
-/* Table */
+
+/* =========================
+   TABLE (UPDATED HEIGHT + SCROLL)
+========================= */
+
 .table-wrapper {
-  overflow-x: auto;
+  max-height: 55vh; /* Fixed table height */
+  overflow-y: auto; /* Vertical scroll */
+  overflow-x: auto; /* Horizontal scroll */
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
+
+/* Optional: Hide scrollbar cleanly */
+.table-wrapper::-webkit-scrollbar {
+  display: none;
+  height: 0px;
+}
+
 table {
   table-layout: fixed;
   width: 100%;
 }
+
 td,
 th {
   vertical-align: middle;
 }
+
 .attendance-table thead th {
   position: sticky;
   top: 0;
-  z-index: 2;
+  background: aliceblue;
+  z-index: 20;
 }
+
 .attendance-table select {
   margin-left: 8px;
   padding: 8px;
@@ -87,16 +101,7 @@ th {
   background-color: aliceblue;
   color: black;
 }
-.table-wrapper {
-  max-height: 65vh;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.table-wrapper::-webkit-scrollbar {
-  display: none;
-  height: 0px;
-}
+
 .attendance-table {
   width: 100%;
   border-collapse: collapse;

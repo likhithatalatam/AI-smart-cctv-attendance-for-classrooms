@@ -10,7 +10,7 @@ interface Student {
   name: string;
   department: string;
   year: string;
-  section?: string; // 👈 section may be missing
+  section?: string;
 }
 
 interface AttendanceSettings {
@@ -51,18 +51,19 @@ export default function AttendanceTracker() {
     setPercentage(0);
   }, [batch, department, year, section]);
 
-  // 2️⃣ Initial load
+  // Initial load
   useEffect(() => {
     loadSettings();
     loadMasters();
   }, []);
 
-  // 3️⃣ Reload students on filter change
+  // Reload students on filter change
   useEffect(() => {
     loadStudents();
   }, [batch, department, year, section]);
 
-  // 4️⃣ Auto refresh masters on window focus
+
+  //Auto refresh masters on window focus
   useEffect(() => {
     const onFocus = () => {
       loadMasters();
@@ -76,8 +77,8 @@ export default function AttendanceTracker() {
     const headers = { Authorization: `Bearer ${token}` };
 
     const [batchRes, branchRes] = await Promise.all([
-      axios.get(`${API}/api/admin/batches`, { headers }),
-      axios.get(`${API}/api/admin/branches`, { headers }),
+      axios.get(`${API}/api/batches`, { headers }),
+      axios.get(`${API}/api/branches`, { headers }),
     ]);
 
     setBatches(batchRes.data);
@@ -86,8 +87,8 @@ export default function AttendanceTracker() {
 
 
   // ---------------- LOAD DATA ----------------
+
   const loadStudents = async () => {
-    // 🚫 do nothing until required filters are selected
     if (!batch || !department || !year) {
       setStudents([]);
       return;
@@ -98,8 +99,8 @@ export default function AttendanceTracker() {
       params: {
         dept: department,
         year: year,
-        section: section || undefined,
         batch: batch,
+        ...(section && { section }), // only send section if selected
       },
     });
 
@@ -191,7 +192,7 @@ export default function AttendanceTracker() {
       return;
     }
 
-    const res = await axios.get(`${API}/api/admin/sections`, {
+    const res = await axios.get(`${API}/api/sections`, {
       headers: { Authorization: `Bearer ${token}` },
       params: {
         batch_id: batch,
@@ -232,7 +233,7 @@ export default function AttendanceTracker() {
       year,
     };
 
-    // ✅ send section ONLY if selected
+    // send section ONLY if selected
     if (section) {
       params.section = section;
     }

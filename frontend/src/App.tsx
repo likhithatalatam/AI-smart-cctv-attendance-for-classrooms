@@ -8,6 +8,8 @@ import AttendanceTracker from "./pages/faculty/AttendanceTracker";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MasterData from "./pages/admin/AdminMasterData";
+import StudentDashboard from "./pages/student/StudentDashboard";
+import SelectRole from "./pages/SelectRole";
 
 export default function App() {
   return (
@@ -76,6 +78,14 @@ export default function App() {
               </>
             </ProtectedRoute>
           }
+        />
+        <Route
+          path="/student-dashboard"
+          element={<StudentDashboard />}
+        />
+        <Route
+          path="/select-role"
+          element={<SelectRole />}
         />
       </Routes>
     </BrowserRouter>

@@ -12,11 +12,8 @@ export default function Welcome() {
                 <p>Smart and secure attendance management system</p>
 
                 <div className="welcome-actions">
-                    <button onClick={() => navigate("/login?role=admin")}>
-                        Login as Admin
-                    </button>
-                    <button onClick={() => navigate("/login?role=faculty")}>
-                        Login as Faculty
+                    <button onClick={() => navigate("/select-role")}>
+                        Login
                     </button>
                 </div>
             </div>

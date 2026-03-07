@@ -1,0 +1,29 @@
+.role-options {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+}
+
+.role-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.role-option span {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.role-option:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.role-option.active {
+  border: 2px solid #4f6cff;
+  background: rgba(79, 108, 255, 0.2);
+}

@@ -53,16 +53,22 @@ def draw_page_border(canvas, doc):
 # ---------- App ----------
 APP = Flask(__name__)
 # ---------- CORS ----------
-CORS(
-    APP,
-    resources={
-        r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:5174"]}
-    },
-    supports_credentials=True,
-    allow_headers=["Authorization", "Content-Type"],
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-)
+CORS(APP, supports_credentials=True)
 from flask import make_response
+
+
+@APP.before_request
+def handle_options():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add(
+            "Access-Control-Allow-Headers", "Authorization, Content-Type"
+        )
+        response.headers.add(
+            "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"
+        )
+        return response
 
 
 def auth_required(f):
@@ -266,10 +272,8 @@ class Student(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     roll_no = DB.Column(DB.String(64), unique=True, nullable=False)
     name = DB.Column(DB.String(200), nullable=False)
-
-    batch_id = DB.Column(
-        DB.Integer, DB.ForeignKey("batches.id"), nullable=False
-    )  # ✅ ADD
+    password_hash = DB.Column(DB.String(255))
+    batch_id = DB.Column(DB.Integer, DB.ForeignKey("batches.id"), nullable=False)
 
     department = DB.Column(DB.String(128))
     year = DB.Column(DB.String(32))
@@ -391,7 +395,6 @@ def ping():
     )
 
 
-# ---- Auth ----
 @APP.route("/api/login", methods=["POST"])
 def login():
     try:
@@ -402,25 +405,58 @@ def login():
         if not username or not password:
             return jsonify({"error": "username and password required"}), 400
 
+        # ---------- ADMIN / FACULTY LOGIN ----------
         user = User.query.filter_by(username=username).first()
-        if not user or not user.verify_password(password):
-            return jsonify({"error": "invalid credentials"}), 401
 
-        token = generate_token(user)
+        if user and user.verify_password(password):
+            token = generate_token(user)
 
-        return (
-            jsonify(
+            return (
+                jsonify(
+                    {
+                        "token": token,
+                        "user": {
+                            "id": user.id,
+                            "username": user.username,
+                            "role": user.role,
+                        },
+                    }
+                ),
+                200,
+            )
+
+        # ---------- STUDENT LOGIN ----------
+        student = Student.query.filter_by(roll_no=username).first()
+
+        if student and pbkdf2_sha256.verify(password, student.password_hash):
+
+            token = jwt.encode(
                 {
-                    "token": token,
-                    "user": {
-                        "id": user.id,
-                        "username": user.username,
-                        "role": user.role,
-                    },
-                }
-            ),
-            200,
-        )
+                    "user_id": student.id,
+                    "username": student.roll_no,
+                    "role": "student",
+                    "exp": datetime.datetime.utcnow()
+                    + datetime.timedelta(seconds=APP.config["JWT_EXP_DELTA_SECONDS"]),
+                },
+                APP.config["SECRET_KEY"],
+                algorithm="HS256",
+            )
+
+            return (
+                jsonify(
+                    {
+                        "token": token,
+                        "user": {
+                            "id": student.id,
+                            "username": student.roll_no,
+                            "role": "student",
+                        },
+                    }
+                ),
+                200,
+            )
+
+        return jsonify({"error": "invalid credentials"}), 401
 
     except Exception as e:
         print("LOGIN ERROR:", e)
@@ -531,6 +567,7 @@ def register_student():
             year=year,
             section=section,
             batch_id=batch_id,
+            password_hash=pbkdf2_sha256.hash(roll_no),  # default password
         )
 
         DB.session.add(student)
@@ -1589,7 +1626,7 @@ def export_attendance():
         table = Table(
             table_data,
             repeatRows=1,
-            colWidths=[70, 140, 45, 40, 45, 50, 50, 45],  # 👈 Proper widths
+            colWidths=[70, 140, 45, 40, 45, 50, 50, 45],
             hAlign="CENTER",
         )
 
@@ -1785,6 +1822,101 @@ def auto_attendance():
             }
         ),
         201,
+    )
+
+
+@APP.route("/api/student/my-attendance", methods=["GET"])
+@auth_required
+def student_my_attendance():
+
+    user = request.user
+
+    if user["role"] != "student":
+        return jsonify({"error": "Access denied"}), 403
+
+    student_id = user["user_id"]
+
+    # Get all attendance records
+    records = Attendance.query.filter_by(student_id=student_id).all()
+
+    # Get unique dates student attended
+    present_dates = set()
+
+    for r in records:
+        if r.extra and r.extra.get("status") == "present":
+            present_dates.add(r.timestamp.date())
+
+    present_days = len(present_dates)
+
+    # Get attendance settings
+    settings = AttendanceSettings.query.first()
+
+    if not settings:
+        return jsonify({"total_classes": 0, "present": 0, "absent": 0, "percentage": 0})
+
+    start = settings.start_date
+    end = settings.end_date
+    holidays = settings.holidays or []
+
+    total_days = 0
+    current = start
+
+    while current <= end:
+
+        if settings.exclude_sundays and current.weekday() == 6:
+            current += datetime.timedelta(days=1)
+            continue
+
+        if str(current) in holidays:
+            current += datetime.timedelta(days=1)
+            continue
+
+        total_days += 1
+        current += datetime.timedelta(days=1)
+
+    absent_days = max(total_days - present_days, 0)
+
+    percentage = round((present_days / total_days) * 100, 2) if total_days else 0
+
+    return jsonify(
+        {
+            "total_classes": total_days,
+            "present": present_days,
+            "absent": absent_days,
+            "percentage": percentage,
+        }
+    )
+
+
+@APP.route("/api/student/profile", methods=["GET"])
+@auth_required
+def student_profile():
+
+    user = request.user
+
+    if user["role"] != "student":
+        return jsonify({"error": "Access denied"}), 403
+
+    student = Student.query.get(user["user_id"])
+
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+
+    batch = Batch.query.get(student.batch_id)
+
+    batch_label = None
+    if batch:
+        batch_label = f"{batch.start_year}-{batch.end_year}"
+
+    return jsonify(
+        {
+            "name": student.name,
+            "roll_no": student.roll_no,
+            "department": student.department,
+            "year": student.year,
+            "section": student.section,
+            "batch": batch_label,
+        }
     )
 
 

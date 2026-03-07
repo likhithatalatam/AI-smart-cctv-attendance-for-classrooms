@@ -18,9 +18,18 @@ export default function Login() {
         username,
         password,
       });
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.user.role);
-      navigate("/dashboard");
+
+      const role = res.data.user.role;
+
+      if (role === "student") {
+        navigate("/student-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+
     } catch {
       setMsg("Invalid username or password");
     }

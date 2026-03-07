@@ -1,0 +1,120 @@
+.student-container {
+  background: #f8fafc;
+  min-height: 100vh;
+  color: black;
+  width: 100vw;
+}
+
+.student-title {
+  font-size: 28px;
+  margin-bottom: 25px;
+  margin: 0;
+  margin-left: 19px;
+}
+
+/* GRID */
+
+.student-grid {
+  display: flex;
+  flex-direction: row;
+  padding: 0 47px;
+}
+
+/* PROFILE PANEL */
+
+.student-profile {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 400px;
+  height: 500px;
+  margin-right: 40px;
+}
+.student-profile h2 {
+  margin-bottom: 10px;
+  margin-top: 0;
+}
+.profile-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  /* border: 1px solid grey; */
+  padding: 10px;
+  border-radius: 6px;
+  background: #f6f6f6;
+}
+
+/* ATTENDANCE PANEL */
+
+.attendance-panel {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 898px;
+}
+.attendance-panel h2 {
+  margin: 0;
+}
+.attendance-stats {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
+.attendance-stats div {
+  text-align: center;
+  background: #ebebeb;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 893px;
+  margin: 10px 5px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #22c55e;
+}
+
+.student-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px;
+}
+.logout-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.logout-btn:hover {
+  background: #dc2626;
+}
+.status-good {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.status-warning {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.status-shortage {
+  color: #ef4444;
+  font-weight: 600;
+}

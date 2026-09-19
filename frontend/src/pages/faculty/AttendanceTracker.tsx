@@ -42,8 +42,6 @@ export default function AttendanceTracker() {
   const [branches, setBranches] = useState<any[]>([]);
   const [sections, setSections] = useState<any[]>([]);
 
-  // 🔹 RESET SELECTED STUDENT WHEN FILTERS CHANGE
-  // 1️⃣ Reset stats when filters change
   useEffect(() => {
     setSelectedStudent(null);
     setTotalDays(0);
@@ -51,19 +49,16 @@ export default function AttendanceTracker() {
     setPercentage(0);
   }, [batch, department, year, section]);
 
-  // Initial load
   useEffect(() => {
     loadSettings();
     loadMasters();
   }, []);
 
-  // Reload students on filter change
   useEffect(() => {
     loadStudents();
   }, [batch, department, year, section]);
 
 
-  //Auto refresh masters on window focus
   useEffect(() => {
     const onFocus = () => {
       loadMasters();
@@ -86,7 +81,6 @@ export default function AttendanceTracker() {
   };
 
 
-  // ---------------- LOAD DATA ----------------
 
   const loadStudents = async () => {
     if (!batch || !department || !year) {
@@ -100,7 +94,7 @@ export default function AttendanceTracker() {
         dept: department,
         year: year,
         batch: batch,
-        ...(section && { section }), // only send section if selected
+        ...(section && { section }),
       },
     });
 
@@ -116,7 +110,7 @@ export default function AttendanceTracker() {
     setEndDate(res.data.end_date || "");
   };
 
-  // ---------------- SAVE SETTINGS ----------------
+
   const saveAttendancePeriod = async () => {
     if (!startDate || !endDate) {
       alert("Please select start and end date");
@@ -140,7 +134,6 @@ export default function AttendanceTracker() {
     alert("Attendance period updated");
   };
 
-  // ---------------- CALCULATE DAYS ----------------
   const calculateWorkingDays = () => {
     if (!settings) return 0;
 
@@ -160,7 +153,6 @@ export default function AttendanceTracker() {
     return count;
   };
 
-  // ---------------- LOAD STUDENT SUMMARY ----------------
   const loadStudentStats = async (student: Student) => {
     setSelectedStudent(student);
 
@@ -222,7 +214,6 @@ export default function AttendanceTracker() {
     !settings?.start_date ||
     !settings?.end_date;
 
-  //  ----------------
   const exportReport = async (type: "pdf" | "excel") => {
     if (!canExport) return;
 
@@ -233,7 +224,6 @@ export default function AttendanceTracker() {
       year,
     };
 
-    // send section ONLY if selected
     if (section) {
       params.section = section;
     }
@@ -258,7 +248,6 @@ export default function AttendanceTracker() {
     window.URL.revokeObjectURL(url);
   };
   if (!token) return null;
-  // ---------------- UI ----------------
   return (
     <div className="tracker-page">
       <h1>Attendance Tracker</h1>

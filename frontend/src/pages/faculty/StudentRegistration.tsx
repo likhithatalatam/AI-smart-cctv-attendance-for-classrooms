@@ -211,20 +211,6 @@ export default function StudentRegistration() {
     }
   };
 
-  // /* ===== Check Duplicate Roll Number ===== */
-  // const isDuplicateRollNo = async () => {
-  //   const res = await axios.get(`${API}/api/students?q=${rollNo}`, {
-  //     headers: {
-  //       Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //     },
-  //   });
-
-  //   return res.data.students.some(
-  //     (s: any) => s.roll_no.toUpperCase() === rollNo.toUpperCase()
-  //   );
-  // };
-
-  /* ===== Register Student ===== */
   const registerStudent = async () => {
     setMsg("");
     if (
@@ -283,7 +269,6 @@ export default function StudentRegistration() {
     }
   };
 
-  /* ===== Form Validation ===== */
   const isFormValid =
     rollNo && name && department && year && section && batch && image1 && image2;
 

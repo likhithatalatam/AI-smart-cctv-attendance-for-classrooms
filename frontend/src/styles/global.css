@@ -3,25 +3,19 @@
   width: 79vw;
 }
 .main {
-  /* padding: 20px; */
   margin-left: 254px;
   height: 100vh;
   width: 100vw;
   color: white;
   background-image: url(../images/ideal\ logo5.jpg);
   background-size: cover;
-  /* opacity: 0.5; */
   position: fixed;
   top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-/* ======================================
-   PAGE-SPECIFIC STYLES (ALL PAGES)
-====================================== */
 
-/* ---------- Page Header ---------- */
 .page-title {
   font-size: 20px;
   font-weight: 600;
@@ -29,12 +23,10 @@
   color: #0f172a;
 }
 
-/* ---------- Section ---------- */
 .section {
   margin-bottom: 24px;
 }
 
-/* ---------- Cards (Page Content) ---------- */
 .page-card {
   background-color: #ffffff;
   padding: 20px;
@@ -43,7 +35,6 @@
   margin-bottom: 20px;
 }
 
-/* ---------- Form Layout ---------- */
 .form-group {
   margin-bottom: 14px;
 }
@@ -64,14 +55,12 @@
   font-size: 14px;
 }
 
-/* ---------- Form Button ---------- */
 .form-actions {
   margin-top: 16px;
 }
 
-/* ---------- Tables ---------- */
 .table-wrapper {
-  background-color: #ffffff;
+  background-color: #fffff;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   overflow-x: auto;
@@ -104,7 +93,6 @@ tbody tr:hover {
   color: #334155;
 }
 
-/* ---------- Status Text ---------- */
 .status-success {
   color: #16a34a;
   font-weight: 500;
@@ -119,8 +107,6 @@ tbody tr:hover {
   color: #dc2626;
   font-weight: 500;
 }
-
-/* ---------- Dashboard List ---------- */
 .dashboard-list {
   margin-top: 10px;
   padding-left: 18px;
@@ -131,13 +117,11 @@ tbody tr:hover {
   font-size: 14px;
 }
 
-/* ---------- Empty / Info Message ---------- */
 .info-text {
   font-size: 14px;
   color: #475569;
   margin-top: 10px;
 }
-/* /////////////////////////////////////////////// */
 
 .regdiv {
   background-color: #1e293b;
@@ -167,7 +151,7 @@ tbody tr:hover {
 .regdiv .child {
   max-height: 500px;
   overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
   -ms-overflow-style: none;
 }
 .attendencetable {
@@ -192,6 +176,6 @@ tbody tr:hover {
 .attadencetracker .div {
   max-height: 500px;
   overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
   -ms-overflow-style: none;
 }

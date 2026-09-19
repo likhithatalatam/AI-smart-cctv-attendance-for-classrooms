@@ -1,4 +1,3 @@
-# portal/app.py
 """
 Drop-in Flask backend for CCTV Attendance (sqlite default).
 
@@ -50,9 +49,8 @@ def draw_page_border(canvas, doc):
     canvas.restoreState()
 
 
-# ---------- App ----------
 APP = Flask(__name__)
-# ---------- CORS ----------
+
 CORS(APP, supports_credentials=True)
 from flask import make_response
 
@@ -230,34 +228,30 @@ def list_admin_subjects():
     )
 
 
-# allow all origins for now (development)
 
-# ---------- Base directory ----------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ---------- Config ----------
+
 APP.config["SQLALCHEMY_DATABASE_URI"] = (
     "mysql+pymysql://cctv_user:cctv123@localhost:3306/cctv_attendance"
 )
 
 APP.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 APP.config["SECRET_KEY"] = "dev-secret"
-APP.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB upload
-APP.config["JWT_EXP_DELTA_SECONDS"] = 60 * 60 * 24  # 24 hours
+APP.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  
+APP.config["JWT_EXP_DELTA_SECONDS"] = 60 * 60 * 24  
 
 
-# ---------- Database ----------
 DB = SQLAlchemy(APP)
 MIGRATE = Migrate(APP, DB)
 
 
-# ---------- Models ----------
 class User(DB.Model):
     __tablename__ = "users"
     id = DB.Column(DB.Integer, primary_key=True)
     username = DB.Column(DB.String(150), unique=True, nullable=False)
     password_hash = DB.Column(DB.String(255), nullable=False)
-    role = DB.Column(DB.String(50), default="admin")  # admin / staff
+    role = DB.Column(DB.String(50), default="admin")  
     role = DB.Column(DB.String(50), default="faculty")
 
     def set_password(self, password):
@@ -298,7 +292,7 @@ class AttendanceSettings(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     start_date = DB.Column(DB.Date, nullable=False)
     end_date = DB.Column(DB.Date, nullable=False)
-    holidays = DB.Column(DB.JSON, nullable=True)  # list of dates
+    holidays = DB.Column(DB.JSON, nullable=True)  
     exclude_sundays = DB.Column(DB.Boolean, default=True)
 
 
@@ -307,10 +301,10 @@ class Attendance(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     student_id = DB.Column(DB.Integer, DB.ForeignKey("students.id"), nullable=False)
     timestamp = DB.Column(DB.DateTime, default=datetime.datetime.utcnow, nullable=False)
-    method = DB.Column(DB.String(50), default="manual")  # manual / recognition
+    method = DB.Column(DB.String(50), default="manual")  
     source = DB.Column(DB.String(255), nullable=True)
-    period = DB.Column(DB.Integer, nullable=True)  # ✅ ADD
-    subject_id = DB.Column(DB.Integer, nullable=True)  # ✅ ADD
+    period = DB.Column(DB.Integer, nullable=True) 
+    subject_id = DB.Column(DB.Integer, nullable=True)  
     extra = DB.Column(DB.JSON, nullable=True)
 
 
@@ -358,7 +352,6 @@ class RecognitionLog(DB.Model):
     meta = DB.Column(DB.JSON, nullable=True)
 
 
-# ---------- Helpers: JWT auth ----------
 def generate_token(user):
     payload = {
         "user_id": user.id,
@@ -384,7 +377,7 @@ from functools import wraps
 from flask import request, jsonify, g
 
 
-# ---------- API endpoints ----------
+
 
 
 @APP.route("/api/ping", methods=["GET"])
@@ -405,7 +398,6 @@ def login():
         if not username or not password:
             return jsonify({"error": "username and password required"}), 400
 
-        # ---------- ADMIN / FACULTY LOGIN ----------
         user = User.query.filter_by(username=username).first()
 
         if user and user.verify_password(password):
@@ -425,7 +417,6 @@ def login():
                 200,
             )
 
-        # ---------- STUDENT LOGIN ----------
         student = Student.query.filter_by(roll_no=username).first()
 
         if student and pbkdf2_sha256.verify(password, student.password_hash):
@@ -465,7 +456,6 @@ def login():
 
 @APP.route("/api/logout", methods=["POST"])
 def logout():
-    # JWT is stateless; instruct client to remove token.
     return jsonify({"msg": "ok"}), 200
 
 
@@ -516,7 +506,6 @@ def dashboard_stats():
     )
 
 
-# ---- Student registration & listing ----
 @APP.route("/api/register_student", methods=["POST"])
 @auth_required
 def register_student():
@@ -530,7 +519,6 @@ def register_student():
         section = request.form.get("section", "").strip().upper()
         batch_id = int(request.form.get("batch"))
 
-        # 🔹 CHECK DUPLICATE ROLL NUMBER
         existing_student = Student.query.filter_by(roll_no=roll_no).first()
 
         if existing_student:
@@ -567,13 +555,12 @@ def register_student():
             year=year,
             section=section,
             batch_id=batch_id,
-            password_hash=pbkdf2_sha256.hash(roll_no),  # default password
+            password_hash=pbkdf2_sha256.hash(roll_no), 
         )
 
         DB.session.add(student)
         DB.session.commit()
 
-        # 🔹 Run encoding in background (non-blocking)
         def background_encoding():
             try:
                 update_encodings(roll_no, [img1_path, img2_path])
@@ -620,7 +607,6 @@ def save_period_subjects():
     except ValueError:
         return jsonify({"error": "Invalid date format"}), 400
 
-    # Delete only for this specific section + date
     PeriodSubject.query.filter_by(
         batch_id=int(batch),
         branch_id=int(branch_id),
@@ -629,7 +615,6 @@ def save_period_subjects():
         date=date_obj,
     ).delete()
 
-    # Insert new records
     for period, subject_id in period_subjects.items():
         ps = PeriodSubject(
             batch_id=int(batch),
@@ -755,8 +740,7 @@ def update_branch(id):
 
     if not name or batch_id is None:
         return jsonify({"error": "name and batch_id required"}), 400
-
-    # duplicate check
+    
     exists = Branch.query.filter(
         Branch.name == name, Branch.batch_id == batch_id, Branch.id != id
     ).first()
@@ -784,7 +768,6 @@ def create_user():
     if not username or not password:
         return jsonify({"error": "username and password required"}), 400
 
-    # check duplicate user
     if User.query.filter_by(username=username).first():
         return jsonify({"error": "User already exists"}), 409
 
@@ -1034,7 +1017,6 @@ def update_batch(id):
     if start_year >= end_year:
         return jsonify({"error": "Invalid batch range"}), 400
 
-    # duplicate check
     exists = Batch.query.filter(
         Batch.start_year == start_year, Batch.end_year == end_year, Batch.id != id
     ).first()
@@ -1128,7 +1110,6 @@ def update_subject(id):
     except ValueError:
         return jsonify({"error": "IDs must be numbers"}), 400
 
-    # duplicate check
     exists = Subject.query.filter(
         Subject.name == name,
         Subject.batch_id == batch_id,
@@ -1158,13 +1139,10 @@ def delete_student(student_id):
 
     roll_no = student.roll_no
 
-    # delete attendance    Attendance.query.filter_by(student_id=student.id).delete()
-
-    # delete student
     DB.session.delete(student)
     DB.session.commit()
 
-    # delete dataset folder
+
     dataset_path = os.path.join(BASE_DIR, "dataset", roll_no)
     if os.path.exists(dataset_path):
         import shutil
@@ -1194,7 +1172,7 @@ def list_students():
         query = query.filter_by(section=section)
 
     if batch:
-        query = query.filter_by(batch_id=int(batch))  # ✅ NOW VALID
+        query = query.filter_by(batch_id=int(batch))  
 
     students = query.order_by(Student.roll_no.asc()).all()
 
@@ -1216,43 +1194,6 @@ def list_students():
         ),
         200,
     )
-
-
-# @APP.route("/api/admin/subjects", methods=["GET"])
-# @auth_required
-# def list_subjects():
-#     batch_id = request.args.get("batch_id")
-#     branch_id = request.args.get("branch_id")
-#     year = request.args.get("year")
-
-#     query = Subject.query
-
-#     if batch_id:
-#         query = query.filter_by(batch_id=int(batch_id))
-
-#     if branch_id:
-#         query = query.filter_by(branch_id=int(branch_id))
-
-#     if year:
-#         query = query.filter_by(year=int(year))
-
-#     subjects = query.order_by(Subject.name.asc()).all()
-
-#     return (
-#         jsonify(
-#             [
-#                 {
-#                     "id": s.id,
-#                     "name": s.name,
-#                     "batch_id": s.batch_id,
-#                     "branch_id": s.branch_id,
-#                     "year": s.year,
-#                 }
-#                 for s in subjects
-#             ]
-#         ),
-#         200,
-#     )
 
 
 @APP.route("/api/attendance/settings", methods=["POST"])
@@ -1331,7 +1272,6 @@ def attendance_by_date():
     start = datetime.datetime.combine(attendance_date, datetime.time.min)
     end = datetime.datetime.combine(attendance_date, datetime.time.max)
 
-    # 🔥 JOIN Attendance → Student
     query = (
         DB.session.query(Attendance)
         .join(Student, Attendance.student_id == Student.id)
@@ -1341,7 +1281,6 @@ def attendance_by_date():
         )
     )
 
-    # 🔥 APPLY FILTERS
     if batch:
         query = query.filter(Student.batch_id == int(batch))
     if dept:
@@ -1361,14 +1300,12 @@ def attendance_by_date():
         if sid not in result:
             result[sid] = {}
 
-        # 🔹 recognition → mark all periods present
         if r.method == "recognition" and r.period:
             result[sid][r.period] = {
                 "status": r.extra.get("status", "present"),
                 "method": "recognition",
             }
 
-        # 🔹 manual attendance
         if r.method == "manual" and r.period:
             result[sid][r.period] = {
                 "status": r.extra.get("status"),
@@ -1393,7 +1330,6 @@ def manual_attendance():
     subject_id = data.get("subject_id")
     source = data.get("source", "manual-ui")
 
-    # -------- VALIDATION --------
     if not roll_no or not date_str or period is None or subject_id is None:
         return jsonify({"error": "roll_no, date, period, subject_id required"}), 400
 
@@ -1417,7 +1353,7 @@ def manual_attendance():
 
     ts = datetime.datetime.combine(attendance_date, datetime.datetime.utcnow().time())
 
-    # -------- CHECK EXISTING --------
+
     existing = Attendance.query.filter(
         Attendance.student_id == student.id,
         func.date(Attendance.timestamp) == attendance_date,
@@ -1431,7 +1367,7 @@ def manual_attendance():
         DB.session.commit()
         return jsonify({"msg": "attendance updated", "method": "manual"}), 200
 
-    # -------- CREATE --------
+
     att = Attendance(
         student_id=student.id,
         timestamp=ts,
@@ -1451,7 +1387,6 @@ def manual_attendance():
 @APP.route("/api/attendance/summary/<int:student_id>", methods=["GET"])
 @auth_required
 def attendance_summary(student_id):
-    # total attendance days (distinct dates)
     total_days = (
         DB.session.query(
             DB.func.count(DB.func.distinct(DB.func.date(Attendance.timestamp)))
@@ -1463,7 +1398,6 @@ def attendance_summary(student_id):
         .scalar()
     )
 
-    # present days
     present_days = (
         DB.session.query(
             DB.func.count(DB.func.distinct(DB.func.date(Attendance.timestamp)))
@@ -1613,7 +1547,7 @@ def export_attendance():
             table_data.append(
                 [
                     Paragraph(str(row["Roll No"]), cell_style),
-                    Paragraph(str(row["Name"]), cell_style),  # 👈 TEXT WRAPS HERE
+                    Paragraph(str(row["Name"]), cell_style),  
                     Paragraph(str(row["Department"]), cell_style),
                     Paragraph(str(row["Year"]), cell_style),
                     Paragraph(row["Section"] or "-", cell_style),
@@ -1669,7 +1603,7 @@ def export_attendance():
             workbook = writer.book
             worksheet = writer.sheets["Attendance"]
 
-            # ---- Styling ----
+
             header_format = workbook.add_format(
                 {
                     "bold": True,
@@ -1687,17 +1621,16 @@ def export_attendance():
                 }
             )
 
-            # Apply header format
+
             for col_num, column_name in enumerate(df.columns):
                 worksheet.write(0, col_num, column_name, header_format)
                 worksheet.set_column(col_num, col_num, 18)
 
-            # Apply cell borders
+
             for row in range(1, len(df) + 1):
                 for col in range(len(df.columns)):
                     worksheet.write(row, col, df.iloc[row - 1, col], cell_format)
 
-            # Freeze header row
             worksheet.freeze_panes(1, 0)
 
         output.seek(0)
@@ -1710,7 +1643,6 @@ def export_attendance():
         )
 
 
-# ---- Attendance marking (auto / recognition) ----
 @APP.route("/api/attendance/mark", methods=["POST"])
 def auto_attendance():
     """
@@ -1732,17 +1664,17 @@ def auto_attendance():
     confidence = data.get("confidence")
     camera_id = data.get("camera_id", "camera")
     timestamp = data.get("timestamp")
-    period = data.get("period")  # optional
+    period = data.get("period")  
 
     if not recognized_id:
         return jsonify({"error": "recognized_id required"}), 400
 
-    # ---------- FIND STUDENT ----------
+
     student = Student.query.filter_by(roll_no=recognized_id).first()
     if not student:
         return jsonify({"msg": "recognized id not mapped to student"}), 200
 
-    # ---------- PARSE TIMESTAMP ----------
+
     ts = datetime.datetime.now()
     if timestamp:
         try:
@@ -1755,7 +1687,7 @@ def auto_attendance():
     start = ts.replace(hour=0, minute=0, second=0, microsecond=0)
     end = ts.replace(hour=23, minute=59, second=59, microsecond=999999)
 
-    # ---------- CHECK MANUAL ATTENDANCE (DO NOT OVERRIDE) ----------
+
     manual_exists = Attendance.query.filter(
         Attendance.student_id == student.id,
         Attendance.timestamp >= start,
@@ -1770,8 +1702,7 @@ def auto_attendance():
             200,
         )
 
-    # ---------- CHECK EXISTING RECOGNITION ----------
-    # ---------- CHECK IF RECOGNITION ALREADY DONE TODAY ----------
+
     existing = Attendance.query.filter(
         Attendance.student_id == student.id,
         Attendance.timestamp >= start,
@@ -1782,7 +1713,7 @@ def auto_attendance():
     if existing >= 7:
         return jsonify({"msg": "All periods already marked"}), 200
 
-    # ---------- MARK ALL PERIODS PRESENT ----------
+    
     for period_no in range(1, 8):
         manual_exists = Attendance.query.filter(
             Attendance.student_id == student.id,
@@ -1792,7 +1723,7 @@ def auto_attendance():
         ).first()
 
         if manual_exists:
-            continue  # manual overrides recognition
+            continue 
 
         recognition_exists = Attendance.query.filter(
             Attendance.student_id == student.id,
@@ -1836,10 +1767,10 @@ def student_my_attendance():
 
     student_id = user["user_id"]
 
-    # Get all attendance records
+
     records = Attendance.query.filter_by(student_id=student_id).all()
 
-    # Get unique dates student attended
+
     present_dates = set()
 
     for r in records:
@@ -1848,7 +1779,7 @@ def student_my_attendance():
 
     present_days = len(present_dates)
 
-    # Get attendance settings
+
     settings = AttendanceSettings.query.first()
 
     if not settings:
@@ -1989,10 +1920,8 @@ def server_error(e):
     return jsonify({"error": "server error", "message": str(e)}), 500
 
 
-# ---------- Run ----------
 if __name__ == "__main__":
     with APP.app_context():
         DB.create_all()
-    # For local dev only. In production use gunicorn/uwsgi.
     port = int(os.environ.get("PORT", 5000))
     APP.run(host="0.0.0.0", port=port, debug=True)

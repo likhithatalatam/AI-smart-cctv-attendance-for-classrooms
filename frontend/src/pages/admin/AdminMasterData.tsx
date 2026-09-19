@@ -33,7 +33,7 @@ export default function MasterData() {
         setBatches(res.data);
     };
 
-    /* ---------------- FETCH ACTIVE TAB DATA ---------------- */
+
     useEffect(() => {
         fetchData();
     }, [activeTab]);
@@ -59,7 +59,6 @@ export default function MasterData() {
         fetchBatches();
     }, []);
 
-    /* ---------------- BRANCH MAP ---------------- */
     const branchMap: Record<number, string> = {};
     branches.forEach((b) => {
         branchMap[b.id] = b.name;
@@ -70,12 +69,12 @@ export default function MasterData() {
     });
 
     const handleEdit = (row: any) => {
-        setEditId(row.id);        // mark edit mode
+        setEditId(row.id);
         setFormData({ ...row });
         setShowModal(true);
     };
 
-    /* ---------------- ADD HANDLER ---------------- */
+
     const handleAdd = async () => {
         if (activeTab === "sections") {
             if (
@@ -139,15 +138,12 @@ export default function MasterData() {
         setShowModal(false);
         setFormData({});
 
-        //refresh active table
         await fetchData();
 
-        //refresh master dropdown sources
         await fetchBatches();
         await fetchBranches();
     };
 
-    /* ---------------- DELETE HANDLER ---------------- */
     const handleDelete = async (id: number) => {
         const isBatch = activeTab === "batches";
 
@@ -171,7 +167,6 @@ export default function MasterData() {
         fetchData();
     };
 
-    /* ---------------- COLUMN ORDER (ID REMOVED) ---------------- */
     const columnMap: Record<TabType, string[]> = {
         batches: ["label", "start_year", "end_year"],
         branches: ["batch_id", "name"],
